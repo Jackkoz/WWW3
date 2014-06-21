@@ -1,0 +1,16 @@
+{% extends 'template.html' %}
+{% load django_tables2 %}
+{% load render_table from django_tables2 %}
+
+<h3>{% block title %} Select a room to proceed {% endblock%}</h3>
+
+{% block content %}
+    {% render_table table %}
+{% endblock %}
+
+{% block navigate %}
+    <hr>
+    <a class="btn btn-danger" href="/reserve/search" role="button">Return</a>
+
+    </div>
+{% endblock %}

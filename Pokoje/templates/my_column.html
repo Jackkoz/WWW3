@@ -1,0 +1,73 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
+<script src="http://students.mimuw.edu.pl/~jk334678/sudoku/js/bootstrap.js"></script>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.css">
+
+<form class="form-horizontal" role="form" method="post"><input type='hidden' name='csrfmiddlewaretoken' value='ZH8fSGSm8deTbuaJ1BWu1tRvFI20TjuF' />
+<input id="id_hidden_field" name="hidden_field" type="hidden" />
+
+<a class="btn btn-sm btn-info" id = {{ record.id }} data-toggle="modal" data-target="#myModal" onclick="dupa()">Reserve</a>
+
+<script type="text/javascript">
+
+{#    $(".btn-reserve").click(function(e) {#}
+{#        e.preventDefault();#}
+{#        var hours = [];#}
+{#        var date;#}
+{#        var room_id;#}
+{##}
+{#        $(".btn-group :checked").each(function() {#}
+{#            hours.push(this.id.substring(10));#}
+{#        });#}
+{##}
+{#        var jqxhr = $.ajax(#}
+{#                room_id + "/make_reservation",#}
+{#                //"make_reservation",#}
+{#                {#}
+{#                type: "POST",#}
+{#                //data: {'hours': '['+hours.toString()+']', 'room_id': room_id, 'date': my_date }#}
+{#                data: {'hours': hours, 'room_id': room_id, 'date': date,#}
+{#                'csrfmiddlewaretoken': csrf_token}#}
+{##}
+{#        })#}
+{#        .done(function(data) {#}
+{#            alert("Room successfully reserved!")#}
+{#            console.log( "success" );#}
+{#            $("#modalContent").html(data);#}
+{#            count = 0;#}
+{#            })#}
+{#        .fail(function() {#}
+{#            console.log( "error" );#}
+{#            alert("We are sorry but it is impossible to make the reservation")#}
+{#            location.reload();#}
+{#            })#}
+{#        .always(function() {#}
+{#            console.log( "complete" );#}
+{#            });#}
+{##}
+{#        });#}
+
+    $(".btn-info").click(function(e) {
+        e.preventDefault();
+        id = this.id;
+
+        url = "/reserve/ajax_term/get/" + id;
+
+        var getModal = $.ajax(url, {type:"GET",
+            data: {'room_id': id} } )
+        .done(function(data) {
+    {#        console.log( "ok" );#}
+            $(".modal_body").html(data);
+            })
+        .fail(function() {
+            console.log( "error" );
+            })
+        .always(function() {
+        });
+    });
+
+    function dupa()
+    {}
+
+</script>
+
+</form>

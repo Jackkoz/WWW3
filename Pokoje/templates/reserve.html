@@ -1,0 +1,19 @@
+{% extends 'template.html' %}
+{% load django_tables2 %}
+{% load render_table from django_tables2 %}
+
+<h3>{% block title %} Select a term{% endblock%}</h3>
+
+{% block content %}
+    <form action="/reserve/term/get/1" method="post"> {% csrf_token %}
+        <ul>
+        {{ form.as_ul }}
+        </ul>
+        <input type="submit" name="submit" value="Reserve" class="btn">
+    </form>
+
+    <hr>
+    {% render_table table %}
+{% endblock %}
+
+

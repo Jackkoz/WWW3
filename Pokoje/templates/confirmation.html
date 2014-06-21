@@ -1,0 +1,23 @@
+{% extends 'room_list.html' %}
+{% load django_tables2 %}
+{% load render_table from django_tables2 %}
+
+<h3>{% block title %} Please confirm the reservation {% endblock%}</h3>
+
+{% block content %}
+    <p><form action="/reserve/confirm" method="post">
+        {% csrf_token %}
+
+        Room: {{ form.room }} <br>
+        Date: {{ form.date }} <br>
+        Start: {{ form.begin }} <br>
+        End: {{ form.end }} <br>
+        <br>
+        <a class="btn btn-default" href="{% url 'confirm' %}" role="button">Confirm</a>
+    </form>
+{% endblock %}
+
+{% block navigate %}
+<hr>
+    <a class="btn btn-danger" href="{% url 'template' %}" role="button">Cancel</a>
+{% endblock %}
