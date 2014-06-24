@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^confirm$', 'Pokoje.views.confirm', name='confirm'),
     url(r'^ajax_confirm$', 'Pokoje.views.ajax_confirm', name='ajax_confirm'),
     url(r'^success$', 'Pokoje.views.success', name='success'),
+    url(r'^offline$', 'Pokoje.views.offline_db', name='offline_db'),
 )

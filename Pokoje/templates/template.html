@@ -60,25 +60,260 @@
                     </p>
 
                     <hr>
-
-{#                    <form class="form-horizontal" role="form" method="post"><input type='hidden' name='csrfmiddlewaretoken' value='ZH8fSGSm8deTbuaJ1BWu1tRvFI20TjuF' />#}
-
                         {% block main %}
 
-                            <h3>{% block title %}{% endblock%}</h3>
+                            <h3>
+                                {% block title %}
+                                {% endblock%}
+                            </h3>
 
                             {% block content %}
+                                <p align = 'center'>
+                                    <button class="btn btn-info" role="button" onclick="offline()">Browse offline</button>
+                                </p>
+
+                                <div id="search">
+{#                                <button class="btn btn-warning" role="button" onclick="search()">Search</button>#}
+                                </div>
+                                <div id="room-table">
+
+                                </div>
                             {% endblock %}
 
                             {% block navigate %}
                             {% endblock %}
 
                         {% endblock %}
-                    </form>
                 </div>
                 {% endif %}
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Choose a date</h4>
+          </div>
+          <div class="modal-body">
+              <div class="panel-group" id="accordion">
+
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+<script>
+    var rooms = [];
+    var terms = [];
+    var attributes = [];
+
+    function Room(id, name, description, capacity, attributes)
+    {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.capacity = capacity;
+        this.attributes = attributes;
+
+{#        this.getInfo = function() {#}
+{#            return this.id + ' ' + this.name + ' ' + this.description;#}
+{#        };#}
+
+    }
+
+    Room.prototype.getInfo = function() {
+    return this.id + ' ' + this.name + ' ' + this.description;
+    };
+
+    function FreeTerm(id, room, date, begin, end)
+    {
+        this.id = id;
+        this.room = room;
+        this.date = date;
+        this.begin = begin;
+        this.end = end;
+    }
+
+    function Attribute(id, name)
+    {
+        this.id = id;
+        this.name = name;
+    }
+
+    function offline()
+    {
+        $.getJSON( "/reserve/offline", function( data ) {
+            $.each( data['rooms'], function( key, val ) {
+                var room = new Room(val['pk'], val['fields']['name'], val['fields']['description'],
+                        val['fields']['capacity'], val['fields']['attributes']);
+                rooms.push(room);
+            });
+
+            $.each(data['terms'], function(key, val) {
+                terms.push(new FreeTerm(val['pk'], val['fields']['room'], val['fields']['date'],
+                        val['fields']['begin'], val['fields']['end']));
+            });
+
+            $.each(data['attributes'], function(key, val) {
+               attributes.push(new Attribute(val['pk'], val['fields']['name']));
+            });
+
+            $('#search').append('Key: <INPUT TYPE="text" id="key" VALUE=""></input><P></p>');
+            $('#search').append('Capacity: <INPUT TYPE="text" id="from" VALUE=""> - <INPUT TYPE="text" id="to" VALUE=""><P>');
+            for (i=0; i<attributes.length; i++)
+                $('#search').append(attributes[i].name+': <INPUT TYPE="checkbox" id="'+attributes[i].id+'" VALUE=""><P>');
+
+            $('#search').append('<button class="btn btn-warning" role="button" onclick="search()">Search</button>');
+
+            showRooms(rooms);
+        });
+    }
+
+function showRooms(rooms)
+{
+var table = "<table class=\"table\">\
+                    <thead>\
+                        <tr>\
+                                <th>\
+                                    Name\
+                                </th>\
+                                <th>\
+                                    Capacity\
+                                </th>\
+                                <th>\
+                                    Description\
+                                </th>\
+                        </tr>\
+                    </thead>\
+                    <tbody> ";
+{#                    );#}
+
+            for (var i = 0; i < rooms.length; i++)
+            {
+                        table = table.concat("<tr>\
+                        <td>"+rooms[i].name+"</td>\
+                        <td>"+rooms[i].capacity+"</td>\
+                        <td>"+rooms[i].description+"</td>\
+                        <td>\
+                            <button class='btn btn-primary btn-small' id='przycisk'\
+                                onclick=\"showModal('"+rooms[i].id+"+')\" >\
+                                Reserve\
+                            </button>\
+                        </td>\
+                        <br>\
+                        </tr>");
+            }
+
+            table = table.concat("	</tbody> </table>");
+            $('#room-table').html(table);
+}
+
+function search()
+{
+    var result = rooms;
+    var key = $('#key').val();
+
+    if (key !== '')
+    {
+        result = result.filter(function(obj) {
+           return (obj.name.indexOf(key) > -1) || (obj.description.indexOf(key) > -1);
+        });
+    }
+
+    var from = $('#from').val();
+    if (! isNaN(from) && from !== "")
+    {
+        result = result.filter(function(obj) {
+           return obj.capacity >= from;
+        });
+    }
+
+    var to = $('#to').val();
+
+    if (! isNaN(to) && to !== "")
+    {
+        result = result.filter(function(obj) {
+           return obj.capacity <= to;
+        });
+    }
+
+    for (var i = 0; i < attributes.length; i++)
+    {
+        var j = i+1;
+        var box = $('#'+j).is(':checked');
+        if (box)
+        {
+            result = result.filter(function(obj) {
+                return obj.attributes.indexOf(j) > -1;
+            });
+        }
+    }
+
+    showRooms(result);
+}
+
+function showModal(id)
+{
+
+}
+
+{#function insertTerm(term)#}
+{#{#}
+{#    var panel = '\#}
+{#        <div class="panel panel-default">\#}
+{#            <div class="panel-heading">\#}
+{#              <h4 class="panel-title">\#}
+{#                <a data-toggle="collapse" data-parent="#accordion"\#}
+{#                        href="#collapse"+term.date.day+term.date.year+term.date.month>\#}
+{#                    term.date :\#}
+{#                    {% for termin in fullt %}\#}
+{#                        {% if termin.date == term.date %}\#}
+{#                            {{ termin.begin }} - {{ termin.end }}\#}
+{#                        {% endif %}\#}
+{#                    {% endfor %}\#}
+{#                </a>\#}
+{#              </h4>\#}
+{#            </div>\#}
+{#            <div id="collapse{{term.date.day}}{{term.date.year}}{{term.date.month}}" class="panel-collapse collapse" >\#}
+{#              <div class="panel-body" id="{{term.date.day}}{{term.date.year}}{{term.date.month}}">\#}
+{#                  <div class="btn-group" data-toggle="buttons" id="checkboxy">\#}
+{#                  {% for termin in fullt %}\#}
+{#                      {% if termin.date == term.date %}\#}
+{#                          {% for h in 'xxxxxxxxxxxxxxxxxxxxxxxxx' %}\#}
+{#                              {% if forloop.counter0 >= termin.begin and forloop.counter0 < termin.end %}\#}
+{#                              <label class="btn btn-primary">\#}
+{#                                    <input type="checkbox" name="{{term.date.day}}{{term.date.year}}{{term.date.month}}"\#}
+{#                                           value="{{ forloop.counter0 }}"> {{forloop.counter0}}\#}
+{#                              </label>\#}
+{#                              {% endif %}\#}
+{#                            {% endfor %}\#}
+{#                      {% endif %}\#}
+{#                  {% endfor %}\#}
+{#                  </div>\#}
+{#                    <br><hr>\#}
+{#                    <div id="info">\#}
+{#                    </div>\#}
+{#                  <button class="btn btn-info btn-small" id="przycisk"\#}
+{#                          onclick="confirm(\'{{ term.date }}\',\#}
+{#                                  $(\'input:checkbox[name={{term.date.day}}{{term.date.year}}{{term.date.month}}]:checked\'))" >\#}
+{#                      {% csrf_token %}\#}
+{#                      Reserve\#}
+{#                  </button>\#}
+{#              </div>\#}
+{#            </div>\#}
+{#        </div>\#}
+{#        ';#}
+{# }#}
+
+</script>
 </body>
 
 <script src="http://students.mimuw.edu.pl/~jk334678/sudoku/js/bootstrap.js"></script>

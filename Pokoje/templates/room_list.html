@@ -59,11 +59,6 @@
 
 <script>
 
-    function showM()
-    {
-        $('#myModal').modal('show');
-    }
-
     function getCookie(name)
     {
         var cookieValue = null;
@@ -98,7 +93,9 @@
             data: {'room_id': id} } )
         .done(function(data) {
             console.log( "success" );
-             $(".modal-body").html(data);
+            localStorage.setItem("terms", data);
+            $(".modal-body").html(localStorage.getItem("terms"));
+{#             $(".modal-body").html(data);#}
             })
         .fail(function() {
             console.log( "error" );

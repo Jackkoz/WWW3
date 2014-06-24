@@ -1,4 +1,6 @@
 import django.contrib.auth
+import django.contrib.sessions.serializers
+import django.http
 from django.shortcuts import render, redirect
 import django.template
 import django.utils.dateformat
@@ -13,6 +15,9 @@ from django.db import IntegrityError
 import django_tables2 as tables
 from django_tables2.utils import A
 from django_tables2 import RequestConfig
+# from django.utils import simplejson
+import json
+from django.core import serializers
 
 # Create your views here.
 
@@ -25,8 +30,8 @@ class RoomTable(tables.Table):
 
     name = tables.LinkColumn('room', args=[A('pk')])
     my_column = tables.TemplateColumn(verbose_name=(' '),
-                                    template_name='my_column.html',
-                                    orderable=False)
+            template_name='my_column.html',
+            orderable=False)
 
 
 class TermTable(tables.Table):
@@ -296,3 +301,34 @@ def ajax_confirm(request):
 
 def success(request):
     return render(request, 'success.html')
+
+
+def offline(request):
+    args = {}
+    args['rooms'] = Room.objects.all()
+    args['terms'] = FreeTerm.objects.all()
+    args['reservations'] = Reservation.objects.all().filter(user=request.user)
+    args['attributes'] = Attribute.objects.all()
+
+
+    return render(request, args)
+
+
+# def offline_db(request):
+#     data = serializers.serialize("json", list(Room.objects.all())
+#             + list(FreeTerm.objects.all()) + list(Attribute.objects.all()))
+#     return django.http.HttpResponse(data, content_type="application/json")
+
+
+def offline_db(request):
+    room_json = serializers.serialize('json', Room.objects.all())
+    room_list = json.loads(room_json)
+
+    term_json = serializers.serialize('json', FreeTerm.objects.all())
+    term_list = json.loads(term_json)
+
+    attribute_json = serializers.serialize('json', Attribute.objects.all())
+    attribute_list = json.loads(attribute_json)
+
+    json_data = json.dumps({'rooms': room_list, 'terms': term_list, 'attributes': attribute_list})
+    return django.http.HttpResponse(json_data, content_type='application/json')
