@@ -15,7 +15,6 @@ from django.db import IntegrityError
 import django_tables2 as tables
 from django_tables2.utils import A
 from django_tables2 import RequestConfig
-# from django.utils import simplejson
 import json
 from django.core import serializers
 

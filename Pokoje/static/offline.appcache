@@ -1,0 +1,10 @@
+CACHE MANIFEST
+/static/offline.html
+/static/jquery.js
+/static/django_tables2/themes/paleblue/css/screen.css
+//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css
+/static/scripts.js
+http://students.mimuw.edu.pl/~jk334678/sudoku/js/bootstrap.js
+
+FALLBACK:
+/ /static/offline.html
